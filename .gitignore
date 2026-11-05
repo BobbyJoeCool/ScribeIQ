@@ -218,3 +218,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ScribeIQ
+Outputs/
+.DS_Store
+recorder/bin/
+output/
+recordings/
+transcripts/
+*.wav
+*.m4a
+*.mp3
+
+# Dev notes (working notes, not part of the portfolio) and personal use Output folder
+DevNotes/
+Output/
+
+# Front end: dependencies and build output (built locally with npm run build)
+frontend/node_modules/
+frontend/dist/

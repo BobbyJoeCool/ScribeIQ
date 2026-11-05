@@ -1,0 +1,229 @@
+/* Design tokens and base elements. Component styles live in *.module.css. */
+
+:root {
+  --bg: #e4e7ec;
+  --surface: #f5f6f8;
+  --surface-2: #e8ebf0;
+  --border: #cdd3dc;
+  --text: #1b1f27;
+  --muted: #5d6676;
+  --accent: #3b5bdb;
+  --accent-text: #ffffff;
+  --danger: #d6336c;
+  --record: #e03131;
+  --ok: #2f9e44;
+  --radius: 10px;
+  --shadow: 0 4px 16px rgb(20 30 50 / 0.1);
+
+  /* Sidebar: dark grey with blue accents, in both modes */
+  --nav-bg: #2a2f38;
+  --nav-border: #1d2128;
+  --nav-text: #c9ced8;
+  --nav-muted: #8c94a3;
+  --nav-hover: #353b46;
+  --nav-active-bg: rgb(92 124 250 / 0.18);
+  --nav-accent: #5c7cfa;
+  --nav-active-text: #ffffff;
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Speaker colors, assigned by order of first appearance. */
+  --speaker-0: #3b5bdb;
+  --speaker-1: #c2255c;
+  --speaker-2: #2b8a3e;
+  --speaker-3: #e8590c;
+  --speaker-4: #7048e8;
+  --speaker-5: #0b7285;
+  --speaker-6: #a61e4d;
+  --speaker-7: #5c940d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15171c;
+    --surface: #1e2128;
+    --surface-2: #282c35;
+    --border: #353a45;
+    --text: #e8eaef;
+    --muted: #9aa3b2;
+    --accent: #748ffc;
+    --accent-text: #10131a;
+    --danger: #f06595;
+    --record: #ff6b6b;
+    --ok: #69db7c;
+    --shadow: 0 4px 16px rgb(0 0 0 / 0.4);
+
+    --nav-bg: #101216;
+    --nav-border: #262a33;
+    --nav-hover: #1c1f26;
+    --nav-accent: #748ffc;
+
+    --speaker-0: #91a7ff;
+    --speaker-1: #f783ac;
+    --speaker-2: #8ce99a;
+    --speaker-3: #ffa94d;
+    --speaker-4: #b197fc;
+    --speaker-5: #66d9e8;
+    --speaker-6: #faa2c1;
+    --speaker-7: #c0eb75;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  min-width: 900px;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  line-height: 1.25;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="url"],
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+input:disabled,
+select:disabled {
+  opacity: 0.6;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* Buttons shared across tabs */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-2);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent);
+  filter: brightness(1.08);
+}
+
+.btn-record {
+  background: var(--record);
+  border-color: var(--record);
+  color: #fff;
+}
+
+.btn-record:hover:not(:disabled) {
+  background: var(--record);
+  filter: brightness(1.08);
+}
+
+.btn-danger {
+  color: var(--danger);
+}
+
+.btn-danger-solid {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.btn-danger-solid:hover:not(:disabled) {
+  background: var(--danger);
+  filter: brightness(1.08);
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.hint {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.warn {
+  color: var(--danger);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
