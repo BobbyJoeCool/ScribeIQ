@@ -1,0 +1,71 @@
+.setup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.deck {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.clock {
+  font-size: 44px;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.recording {
+  background: var(--record);
+  color: #fff;
+}
+
+.paused {
+  background: #f59f00;
+  color: #1b1f27;
+}
+
+.processing {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.done {
+  background: var(--ok);
+  color: #10131a;
+}
+
+.meters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 520px;
+}
+
+.headphones {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 14px;
+}

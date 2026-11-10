@@ -1,0 +1,25 @@
+# Transcription
+mlx-whisper==0.4.3
+numpy==2.5.3
+pyannote.audio==4.0.7
+requests==2.34.2
+torch==2.14.0
+
+# Local web server for the UI
+fastapi==0.156.4
+starlette==1.9.0
+uvicorn==0.54.0
+websockets==17.3
+python-multipart==0.0.32
+
+# Native window. pyobjc is pywebview's macOS bridge, pinned to a settled release.
+pywebview==6.2.1
+pyobjc-core==12.2.2
+pyobjc-framework-Cocoa==12.2.2
+pyobjc-framework-Quartz==12.2.2
+pyobjc-framework-WebKit==12.2.2
+pyobjc-framework-Security==12.2.2
+pyobjc-framework-UniformTypeIdentifiers==12.2.2
+
+# Tests only (FastAPI's TestClient)
+httpx==0.28.1
