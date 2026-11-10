@@ -176,3 +176,33 @@ class RecorderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LanguageTests(unittest.TestCase):
+    """Whisper must be told the language, or a call track that opens with
+    silence can be transcribed in a wrongly guessed one (e.g. Norwegian)."""
+
+    def run_transcribe(self, **kwargs):
+        import sys
+        import types
+        from unittest import mock
+
+        seen = {}
+        fake = types.ModuleType("mlx_whisper")
+        fake.transcribe = lambda path, **opts: seen.update(opts) or {"segments": []}
+        with mock.patch.dict(sys.modules, {"mlx_whisper": fake}):
+            pipeline.transcribe(Path("x.wav"), "turbo", **kwargs)
+        return seen
+
+    def test_uses_configured_language_by_default(self):
+        from unittest import mock
+        with mock.patch.object(pipeline.config, "LANGUAGE", "en"):
+            self.assertEqual(self.run_transcribe(call_track=True)["language"], "en")
+
+    def test_auto_lets_whisper_guess(self):
+        self.assertNotIn("language", self.run_transcribe(language="auto"))
+
+    def test_call_track_keeps_silence_options(self):
+        opts = self.run_transcribe(call_track=True, language="es")
+        self.assertEqual(opts["language"], "es")
+        self.assertFalse(opts["condition_on_previous_text"])

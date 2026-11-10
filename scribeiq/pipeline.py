@@ -18,6 +18,8 @@ from urllib.parse import unquote, urlparse
 
 import requests
 
+from . import config
+
 AUDIO_CACHE = Path(tempfile.gettempdir()) / "scribeiq_audio"
 STALL_TIMEOUT = 60      # seconds with no data before treating a download as dropped
 MAX_ATTEMPTS = 8        # download attempts (each resumes where the last stopped)
@@ -152,20 +154,26 @@ def prepare_audio(url_or_path: str) -> Path:
     return Path(tmp)
 
 
-def transcribe(audio_path: Path, model: str = "large-v3", call_track: bool = False) -> list:
+def transcribe(audio_path: Path, model: str = "large-v3", call_track: bool = False,
+               language: str | None = None) -> list:
     """Transcribe with MLX Whisper. Returns [{"start", "end", "text"}, ...].
 
     call_track=True is for one side of a recorded call, which is mostly
     silence while the other person talks. Whisper tends to invent text in long
     silences, so this skips silent stretches (hallucination_silence_threshold)
     and stops each segment from being primed by the previous one.
+
+    language defaults to config.LANGUAGE; "auto" (or empty) lets Whisper guess.
     """
     import mlx_whisper
 
     options = {}
+    language = (language or config.LANGUAGE or "auto").lower()
+    if language != "auto":
+        options["language"] = language
     if call_track:
-        options = {"word_timestamps": True, "hallucination_silence_threshold": 2.0,
-                   "condition_on_previous_text": False}
+        options |= {"word_timestamps": True, "hallucination_silence_threshold": 2.0,
+                    "condition_on_previous_text": False}
     result = mlx_whisper.transcribe(str(audio_path), path_or_hf_repo=MODEL_REPOS[model],
                                     **options)
     return [

@@ -144,6 +144,8 @@ python transcribe.py --me call_me.wav --them call_them.wav --their-count 3
 
 **Where files go:** everything is saved in `Outputs/` inside the project folder, so it's right there in your editor: `Outputs/recordings` for the audio tracks and `Outputs/transcripts` for transcripts. `Outputs/` is gitignored, so recordings and transcripts never get committed. To save somewhere else, set `SCRIBEIQ_HOME` in `.env`.
 
+**Language:** transcripts are in English by default. For audio in another language, set `SCRIBEIQ_LANGUAGE` in `.env` to its code (e.g. `es`), or to `auto` to let Whisper detect it.
+
 ## Development
 
 Run the API and the Vite dev server (with hot reload) in two terminals:

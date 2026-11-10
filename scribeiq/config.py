@@ -35,3 +35,9 @@ RECORDER_BIN = Path(os.environ.get(
     "SCRIBEIQ_RECORDER", PROJECT_ROOT / "recorder" / "bin" / "scribe-recorder"))
 
 MY_NAME = os.environ.get("SCRIBEIQ_MY_NAME", "Me")
+
+# Language spoken in the audio, as a Whisper code ("en", "es", ...). Whisper
+# otherwise guesses from the first 30 seconds, and a call track that opens with
+# silence or room noise gets misread (e.g. as Norwegian) and the whole track is
+# transcribed in that language. "auto" restores guessing.
+LANGUAGE = os.environ.get("SCRIBEIQ_LANGUAGE", "en").strip().lower()

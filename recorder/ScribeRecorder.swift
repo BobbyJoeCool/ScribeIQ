@@ -108,13 +108,29 @@ final class Track {
         }
     }
 
+    /// Peak level 0-1. The microphone usually arrives as 16-bit integer PCM and
+    /// system audio as float, so every sample format has to be handled (the
+    /// float-only version read 0 for the mic). Interleaved buffers expose all
+    /// samples through channel 0, so walk frames * channels there.
     static func peak(of buffer: AVAudioPCMBuffer) -> Float {
-        guard let channels = buffer.floatChannelData else { return 0 }
+        let fmt = buffer.format
+        let frames = Int(buffer.frameLength)
+        let channels = Int(fmt.channelCount)
+        let lanes = fmt.isInterleaved ? 1 : channels
+        let perLane = fmt.isInterleaved ? frames * channels : frames
         var p: Float = 0
-        for c in 0..<Int(buffer.format.channelCount) {
-            for i in 0..<Int(buffer.frameLength) { p = max(p, abs(channels[c][i])) }
+        if let data = buffer.floatChannelData {
+            for c in 0..<lanes { for i in 0..<perLane { p = max(p, abs(data[c][i])) } }
+        } else if let data = buffer.int16ChannelData {
+            var m: Int32 = 0
+            for c in 0..<lanes { for i in 0..<perLane { m = max(m, abs(Int32(data[c][i]))) } }
+            p = Float(m) / 32768
+        } else if let data = buffer.int32ChannelData {
+            var m: Int64 = 0
+            for c in 0..<lanes { for i in 0..<perLane { m = max(m, abs(Int64(data[c][i]))) } }
+            p = Float(m) / 2147483648
         }
-        return p
+        return min(p, 1)
     }
 }
 
