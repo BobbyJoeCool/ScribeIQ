@@ -146,12 +146,27 @@ def prepare_audio(url_or_path: str) -> Path:
 
     fd, tmp = tempfile.mkstemp(prefix="scribeiq_", suffix=".wav")
     os.close(fd)
-    subprocess.run(
-        ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
-         "-i", str(raw), "-ar", "16000", "-ac", "1", tmp],
-        check=True, stdout=subprocess.DEVNULL,
-    )
+    try:
+        subprocess.run(
+            ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+             "-i", str(raw), "-ar", "16000", "-ac", "1", tmp],
+            check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True,
+        )
+    except subprocess.CalledProcessError as e:
+        Path(tmp).unlink(missing_ok=True)
+        raise PipelineError(f"Couldn't read {raw.name} as audio "
+                            f"({ffmpeg_reason(e.stderr, e.returncode)}).") from None
     return Path(tmp)
+
+
+def ffmpeg_reason(stderr: str | None, returncode: int) -> str:
+    """The useful part of ffmpeg's last error line: "Error opening input files:
+    Invalid data found when processing input" -> "Invalid data found when
+    processing input"."""
+    lines = [line.strip() for line in (stderr or "").splitlines() if line.strip()]
+    if not lines:
+        return f"ffmpeg exited with code {returncode}"
+    return lines[-1].rsplit(": ", 1)[-1]
 
 
 def transcribe(audio_path: Path, model: str = "large-v3", call_track: bool = False,
@@ -279,18 +294,21 @@ def format_transcript(merged: list) -> str:
 
 
 def format_markdown(merged: list, title: str) -> str:
-    """Same layout as format_transcript, as Markdown."""
-    out, current = [f"# {title}\n"], None
+    """Same layout as format_transcript, as Markdown. Every heading, turn and
+    marker is its own paragraph, so each speaker renders separately."""
+    blocks, current = [f"# {title}"], None
     for seg in merged:
         if seg.get("marker"):
-            out.append(f"\n*[{format_timestamp(seg['start'])}] {seg['marker']}*\n")
+            blocks.append(f"*[{format_timestamp(seg['start'])}] {seg['marker']}*")
             current = None
             continue
         if seg["speaker"] != current:
-            out.append(f"\n**{seg['speaker']}** `{format_timestamp(seg['start'])}`\n\n")
+            blocks.append(f"**{seg['speaker']}** `{format_timestamp(seg['start'])}`")
+            blocks.append(seg["text"])
             current = seg["speaker"]
-        out.append(f"{seg['text']} ")
-    return "".join(out).strip() + "\n"
+        else:
+            blocks[-1] += f" {seg['text']}"
+    return "\n\n".join(block.strip() for block in blocks) + "\n"
 
 
 def format_plain_transcript(segments: list) -> str:
