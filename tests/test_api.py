@@ -328,6 +328,52 @@ class LiveTests(ApiTestCase):
         self.assertEqual(msg["levels"], {"me": 0.25, "them": 0.5})
         self.post("/api/session/stop")
 
+    def test_websocket_follows_state_changes(self):
+        with self.client.websocket_connect("/api/live") as ws:
+            self.assertEqual(ws.receive_json()["state"], "Idle")
+            self.post("/api/session/record", json={"name": "call"})
+            self.post("/api/session/pause")
+            states = set()
+            for _ in range(10):
+                msg = ws.receive_json()
+                states.add(msg["state"])
+                if msg["state"] == "Paused":
+                    break
+        self.assertIn("Paused", states)
+        self.assertEqual(msg["levels"], {"me": 0.0, "them": 0.0})  # no levels while paused
+        self.post("/api/session/stop")
+
+    def test_disconnect_mid_recording_keeps_recording(self):
+        self.post("/api/session/record", json={"name": "call"})
+        with self.client.websocket_connect("/api/live") as ws:
+            ws.receive_json()
+        snap = self.client.get("/api/session").json()
+        self.assertEqual(snap["state"], "Recording")
+        with self.client.websocket_connect("/api/live") as ws:  # reconnects fine
+            self.assertEqual(ws.receive_json()["state"], "Recording")
+        self.assertEqual(self.post("/api/session/stop").json()["state"], "Stopped")
+
+    def test_websocket_from_another_site_is_refused(self):
+        from starlette.websockets import WebSocketDisconnect
+        with self.assertRaises(WebSocketDisconnect) as ctx:
+            with self.client.websocket_connect("/api/live",
+                                               headers={"Origin": "https://evil.example"}) as ws:
+                ws.receive_json()
+        self.assertEqual(ctx.exception.code, 1008)
+
+
+class NotFoundTests(ApiTestCase):
+    def test_unknown_api_paths_are_json_404s(self):
+        for method in ("get", "post", "patch", "put", "delete"):
+            with self.subTest(method=method):
+                r = getattr(self.client, method)("/api/nope/deeper")
+                self.assertEqual(r.status_code, 404)
+                self.assertEqual(r.json(), {"detail": "Not found."})
+
+    def test_unknown_job(self):
+        r = self.client.get("/api/jobs/missing")
+        self.assertEqual((r.status_code, r.json()["detail"]), (404, "No such job."))
+
 
 if __name__ == "__main__":
     unittest.main()

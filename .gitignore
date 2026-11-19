@@ -229,6 +229,7 @@ transcripts/
 *.wav
 *.m4a
 *.mp3
+CLAUDE.md
 
 # Dev notes (working notes, not part of the portfolio) and personal use Output folder
 DevNotes/
@@ -237,3 +238,5 @@ Output/
 # Front end: dependencies and build output (built locally with npm run build)
 frontend/node_modules/
 frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
