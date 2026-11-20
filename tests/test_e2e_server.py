@@ -89,5 +89,22 @@ class StubAppTests(unittest.TestCase):
         self.assertIn("Couldn't read bad.m4a as audio", job["error"])
 
 
+class FakeTokenTests(unittest.TestCase):
+    """The test server uses its own fake HF_TOKEN, even when .env leaves it blank
+    (#6) or holds a real one."""
+
+    def test_replaces_a_blank_or_real_token(self):
+        for value in ("", "hf_real_token"):
+            with self.subTest(value=value), tempfile.TemporaryDirectory() as tmp, \
+                    mock.patch.dict(os.environ, {"HF_TOKEN": value}), \
+                    mock.patch.object(e2e_server, "STEP_DELAY", 0):
+                client = TestClient(e2e_server.build_app(Path(tmp)), base_url="http://127.0.0.1")
+                self.assertEqual(os.environ["HF_TOKEN"], e2e_server.FAKE_HF_TOKEN)
+                r = client.post("/api/files/transcribe",
+                                files={"file": ("talk.m4a", b"x", "audio/mp4")},
+                                data={"identify_speakers": "true"})
+                self.assertEqual(r.status_code, 202, r.text)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -86,9 +86,13 @@ def seed(store: TranscriptStore) -> None:
                labeled=False, kind="file")
 
 
+FAKE_HF_TOKEN = "e2e-not-a-real-token"
+
+
 def build_app(data_dir: Path):
     """The app with every slow or real-world piece swapped for a fake."""
-    os.environ.setdefault("HF_TOKEN", "e2e-not-a-real-token")  # group calls pass the check
+    # Always the fake: .env may leave HF_TOKEN blank or hold a real one (#6).
+    os.environ["HF_TOKEN"] = FAKE_HF_TOKEN  # group calls pass the check
     os.environ["FAKE_RECORDER_LIST_GONE"] = "1"
     transcripts = data_dir / "transcripts"
     seed(TranscriptStore(transcripts))
