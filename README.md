@@ -1,6 +1,6 @@
 # ScribeIQ
 
-Record a call from Zoom, a browser, or any other app and get a speaker-labeled transcript, entirely on your Mac. No cloud services, no subscriptions, no audio leaving your machine.
+Record a call from Zoom, a browser, or any other app and get a speaker-labeled transcript, on your Mac. Recording and transcription run locally on Apple Silicon; audio is never uploaded. The only network use is downloading the models the first time.
 
 ![Recording a call: live timer and level meters for your mic and the other side](docs/screenshots/recording.png)
 
@@ -19,9 +19,17 @@ I did. Most of it looks good, I just had questions about the timeline.
 Okay, back. So for the timeline...
 ```
 
+## Status
+
+| | |
+|---|---|
+| **Implemented** | Two-track call recording (mic + one app or all system audio) through a Swift ScreenCaptureKit helper; pause and resume with markers; on-device MLX Whisper transcription after recording; pyannote speaker labels on group calls; click-to-rename speakers; History; transcription of existing audio files or links; `.json`, `.txt` and `.md` output. |
+| **Tested** | Python unit and API tests (`python -m unittest discover tests`) for the `scribeiq` package, the command line and every endpoint; Vitest + Testing Library tests for every front-end component (`cd frontend && npm test`); Playwright end-to-end tests for every screen and flow (`cd frontend && npm run test:e2e`). All of them use a fake recorder and stubbed transcription. Recording itself is checked by hand on macOS. |
+| **Planned** | Nothing scheduled; v1.0.2 is stable. Known limits are listed under [Limitations](#limitations). |
+
 ## How it works
 
-Most transcription tools record one mixed audio stream and then guess who said what. ScribeIQ records **your microphone and the call as two separate, synced tracks**, so it always knows which words are yours. Speaker identification only runs on the other side of the call, and only when more than one person is on it.
+Most transcription tools record one mixed audio stream and then guess who said what. ScribeIQ records **your microphone and the call as two separate, synced tracks**, so your lines are labeled by which track they came from rather than by guessing. Speaker identification only runs on the other side of the call, and only when more than one person is on it.
 
 ```mermaid
 flowchart LR
@@ -162,11 +170,14 @@ The server only listens on 127.0.0.1 and refuses requests from other web pages (
 ## Tests
 
 ```bash
-python -m unittest discover tests     # Python: core, recorder protocol, and API
-cd frontend && npm test               # front end: buttons and transcript view
+python -m unittest discover tests     # Python: core, recorder protocol, CLI, and API
+cd frontend && npm test               # front end: every component, the API client, live feed
+cd frontend && npm run test:e2e       # end to end: the real app in Chromium (Playwright)
 ```
 
-The Python tests cover track merging, the recording state machine, the Python ↔ recorder protocol, and every API endpoint. They use a fake recorder and stubbed transcription, so no audio, permissions, or models are needed. The front-end tests use Vitest and Testing Library.
+The Python tests cover track merging, the recording state machine, the Python ↔ recorder protocol, saved transcripts, the transcript formats (against golden files in `tests/golden/`), the command line, and every API endpoint. They use a fake recorder and stubbed transcription, so no audio, permissions, or models are needed. The front-end tests use Vitest and Testing Library.
+
+The E2E suite builds the front end and starts `tests/e2e_server.py`: the real app with the fake recorder, stubbed transcription and a throwaway output folder. That server refuses to start unless `SCRIBEIQ_E2E=1` is set, which the Playwright config does for you. It expects the Python virtual environment at `.venv`. First time only: `cd frontend && npx playwright install chromium`.
 
 ## Project layout
 

@@ -4,14 +4,19 @@ protocol, so the Python controller can be tested without capturing audio.
 
 Running apps are faked as Zoom and Safari. A session named "fail" reports a
 permission error, like the real helper does without Screen Recording access.
+With FAKE_RECORDER_LIST_GONE=1 the app list also offers "Gone App", which then
+isn't running when recording starts (an app that quit after the list loaded).
 """
+import os
 import sys
 from pathlib import Path
 
 RUNNING = {"us.zoom.xos": "zoom.us", "com.apple.Safari": "Safari"}
 
+GONE = {"com.example.gone": "Gone App"} if os.environ.get("FAKE_RECORDER_LIST_GONE") else {}
+
 if sys.argv[1:] == ["--list-apps"]:
-    for bundle_id, name in RUNNING.items():
+    for bundle_id, name in {**RUNNING, **GONE}.items():
         print(f"APP {bundle_id}\t{name}", flush=True)
     sys.exit(0)
 
