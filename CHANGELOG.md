@@ -4,6 +4,21 @@ All notable changes to ScribeIQ are recorded here. Versions follow
 [Semantic Versioning](https://semver.org/); the version lives in
 `frontend/package.json` and `scribeiq/__init__.py`.
 
+## [1.0.2] - 2026-11-19
+
+### Fixed
+
+- **An unreadable audio file showed a wall of ffmpeg output.** Transcribing a
+  file ffmpeg can't read (say, a renamed text file) failed with the full ffmpeg
+  command line and left a temporary WAV behind. It now says which file couldn't
+  be read and why, for example "Couldn't read bad.m4a as audio (Invalid data
+  found when processing input).", and cleans up after itself.
+- **Speakers ran together in saved Markdown transcripts.** In the `.md` copy,
+  each speaker's name was glued onto the end of the previous speaker's lines,
+  so Markdown viewers showed several speakers as one paragraph. Every turn and
+  pause marker is now its own paragraph. Older `.md` files pick up the new
+  layout the next time you rename a speaker in that transcript.
+
 ## [1.0.1] - 2026-11-10
 
 ### Fixed

@@ -1,1 +1,1 @@
-__version__ = "1.0.1"  # keep in sync with frontend/package.json and CHANGELOG.md
+__version__ = "1.0.2"  # keep in sync with frontend/package.json and CHANGELOG.md
